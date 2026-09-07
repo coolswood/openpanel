@@ -15,6 +15,7 @@ const String apiUrl = String.fromEnvironment(
   defaultValue: OpenpanelOptions.defaultApiUrl,
 );
 const String clientSecret = String.fromEnvironment('OPENPANEL_CLIENT_SECRET');
+const bool verbose = bool.fromEnvironment('OPENPANEL_VERBOSE');
 
 void main() {
   if (clientId.isNotEmpty) {
@@ -25,6 +26,7 @@ void main() {
         clientId: clientId,
         apiUrl: apiUrl,
         clientSecret: clientSecret.isEmpty ? null : clientSecret,
+        verbose: verbose,
       ),
     );
   }
