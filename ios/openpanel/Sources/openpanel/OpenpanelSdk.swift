@@ -221,16 +221,19 @@ final class OpenpanelSdk {
       let batch = eventQueue.peek(limit: Constants.drainLimit)
       if batch.isEmpty { break }
       var failed = false
+      var sent = 0
       for envelope in batch {
         let outcome = HttpPoster.post(url: "\(apiUrl)/track", headers: headers, body: envelope)
         switch outcome {
         case .success:
           eventQueue.removeFirst()
+          sent += 1
         case .clientError(let code):
           eventQueue.removeFirst()
           logV("dropped invalid event: HTTP \(code)")
-        case .retryable:
+        case .retryable(let code, let error):
           failed = true
+          logV("send failed: HTTP \(code.map(String.init) ?? "nil") \(error.map { String(describing: $0) } ?? "")")
         }
         if failed { break }
       }
@@ -244,6 +247,7 @@ final class OpenpanelSdk {
         scheduleFlush(after: backoff)
         return
       }
+      if sent > 0 { logV("flush (\(reason)): sent \(sent) event(s)") }
     }
     if consecutiveFailures > 0 { logV("flush (\(reason)) recovered") }
     consecutiveFailures = 0

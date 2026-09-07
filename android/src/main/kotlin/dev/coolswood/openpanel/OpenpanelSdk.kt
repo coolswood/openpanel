@@ -201,9 +201,14 @@ internal class OpenpanelSdk(private val context: Context) {
             val batch = queue.peek(DRAIN_LIMIT)
             if (batch.isEmpty()) break
             var failed = false
+            var sent = 0
             for (envelope in batch) {
                 when (val outcome = HttpPoster.post("$apiUrl/track", headers, envelope.toString())) {
-                    is HttpResult.Ok -> queue.removeFirst()
+                    is HttpResult.Ok -> {
+                        queue.removeFirst()
+                        sent++
+                    }
+
                     is HttpResult.BadRequest -> {
                         queue.removeFirst()
                         logV("dropped invalid event: HTTP ${outcome.code}")
@@ -211,6 +216,7 @@ internal class OpenpanelSdk(private val context: Context) {
 
                     is HttpResult.Retryable -> {
                         failed = true
+                        logV("send failed: HTTP ${outcome.code} ${outcome.error ?: ""}")
                         break
                     }
                 }
@@ -226,6 +232,7 @@ internal class OpenpanelSdk(private val context: Context) {
                 scheduleFlush(backoffMs)
                 return
             }
+            if (sent > 0) logV("flush ($reason): sent $sent event(s)")
         }
         if (consecutiveFailures > 0) logV("flush ($reason) recovered")
         consecutiveFailures = 0
