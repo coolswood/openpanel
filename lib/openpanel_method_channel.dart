@@ -12,16 +12,15 @@ class MethodChannelOpenpanel extends OpenpanelPlatform {
 
   /// Calls the native side, never letting analytics failures reach the app.
   ///
-  /// A missing native implementation (web/desktop) or a platform error is
-  /// swallowed — an analytics SDK must not crash the host app. In debug
-  /// builds failures are printed to the console.
+  /// Any failure — a missing native implementation (web/desktop), a platform
+  /// error or an uninitialized Flutter binding — is swallowed: an analytics
+  /// SDK must not crash the host app. In debug builds failures are printed
+  /// to the console.
   Future<void> _guard(String method, Map<String, Object?>? arguments) async {
     try {
       await methodChannel.invokeMethod<void>(method, arguments);
-    } on MissingPluginException {
-      // No native implementation on this platform — nothing to do.
-    } on PlatformException catch (error) {
-      debugPrint('openpanel: $method failed: ${error.message}');
+    } catch (error) {
+      debugPrint('openpanel: $method failed: $error');
     }
   }
 

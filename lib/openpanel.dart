@@ -30,6 +30,10 @@ export 'openpanel_options.dart';
 /// afterwards; calls made before [initialize] was ever invoked are dropped
 /// with a console warning in debug builds (an analytics SDK must never
 /// crash the host app).
+///
+/// When [initialize] is called before `runApp`, initialize the Flutter
+/// binding first (`WidgetsFlutterBinding.ensureInitialized()`) — method
+/// channels do not work without it.
 class Openpanel {
   Openpanel._();
 

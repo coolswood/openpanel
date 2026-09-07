@@ -18,6 +18,9 @@ const String clientSecret = String.fromEnvironment('OPENPANEL_CLIENT_SECRET');
 const bool verbose = bool.fromEnvironment('OPENPANEL_VERBOSE');
 
 void main() {
+  // Any plugin call before runApp requires an initialized binding.
+  WidgetsFlutterBinding.ensureInitialized();
+
   if (clientId.isNotEmpty) {
     // The SDK queues events until initialization completes, so tracking can
     // start immediately.
