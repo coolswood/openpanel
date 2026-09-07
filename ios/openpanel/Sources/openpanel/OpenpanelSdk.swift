@@ -251,7 +251,9 @@ final class OpenpanelSdk {
 
   private func logV(_ message: String) {
     if verbose {
-      print("OpenpanelSdk: \(message)")
+      // NSLog instead of print: os_log output is forwarded to the Flutter
+      // console, Xcode and Console.app — print() stdout is not.
+      NSLog("OpenpanelSdk: %@", message)
     }
   }
 }
