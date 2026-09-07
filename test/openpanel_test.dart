@@ -96,8 +96,12 @@ void main() {
     Openpanel.debugReset();
   });
 
-  test('tracking before initialize throws StateError in debug', () {
-    expect(() => Openpanel.instance.track('event'), throwsStateError);
+  test('tracking before initialize is dropped without throwing', () async {
+    await Openpanel.instance.track('event');
+    await Openpanel.instance.identify('user-1');
+
+    expect(platform.calls, isEmpty);
+    expect(Openpanel.instance.isInitialized, isFalse);
   });
 
   test('initialize forwards options to the platform', () async {

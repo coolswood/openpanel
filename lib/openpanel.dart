@@ -27,9 +27,9 @@ export 'openpanel_options.dart';
 /// ```
 ///
 /// Events sent before [initialize] completes are held back and delivered
-/// afterwards; in debug builds calling any tracking method before
-/// [initialize] throws a [StateError] to surface mis-wiring early, in
-/// release builds such events are dropped silently.
+/// afterwards; calls made before [initialize] was ever invoked are dropped
+/// with a console warning in debug builds (an analytics SDK must never
+/// crash the host app).
 class Openpanel {
   Openpanel._();
 
@@ -134,12 +134,12 @@ class Openpanel {
   Future<void> _whenReady(Future<void> Function() action) {
     final Completer<void>? completer = _initCompleter;
     if (completer == null) {
-      // Debug builds surface the mis-wiring immediately; release builds
-      // drop the event — analytics must never crash the host app.
+      // Never initialized: warn loudly in debug, drop silently in release —
+      // an analytics SDK must never crash the host app.
       if (kDebugMode) {
-        throw StateError(
-          'Openpanel is not initialized. '
-          'Call Openpanel.instance.initialize() before tracking events.',
+        debugPrint(
+          'openpanel: event dropped — Openpanel.instance.initialize() '
+          'has not been called yet.',
         );
       }
       return Future<void>.value();
