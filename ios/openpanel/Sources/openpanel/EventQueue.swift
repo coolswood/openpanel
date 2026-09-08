@@ -63,11 +63,26 @@ final class EventQueue {
   }
 
   func storeGlobalProperties(_ properties: [String: Any]) {
-    storage.set(properties, forKey: Keys.globalProperties)
+    // UserDefaults accepts only property-list values, and the standard
+    // codec delivers types NSNull among them that are not property-list
+    // (storing them raises NSInvalidArgumentException). Encoding through
+    // JSON makes any codec value storable; non-JSON values are simply not
+    // persisted (in-memory state still works until restart).
+    if JSONSerialization.isValidJSONObject(properties),
+      let data = try? JSONSerialization.data(withJSONObject: properties)
+    {
+      storage.set(data, forKey: Keys.globalProperties)
+    }
   }
 
   func readGlobalProperties() -> [String: Any] {
-    storage.dictionary(forKey: Keys.globalProperties) ?? [:]
+    if let data = storage.data(forKey: Keys.globalProperties),
+      let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+    {
+      return object
+    }
+    // Stored before 0.1.1 as a plain plist dictionary.
+    return storage.dictionary(forKey: Keys.globalProperties) ?? [:]
   }
 
   private func readAll() -> [[String: Any]] {

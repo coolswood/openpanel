@@ -98,4 +98,46 @@ internal class PayloadFactoryTest {
 
         assertEquals(JSONObject.NULL, props.get("key"))
     }
+
+    @Test
+    fun `mergeGlobalProperties overwrites values, adds new and removes on null`() {
+        val target = JSONObject()
+            .put("env", "prod")
+            .put("subscription_id", "sub-1")
+
+        PayloadFactory.mergeGlobalProperties(
+            target,
+            mapOf(
+                "env" to "test",
+                "subscription_id" to null,
+                "flag" to true,
+            ),
+        )
+
+        assertEquals("test", target.getString("env"))
+        assertFalse(target.has("subscription_id"))
+        assertEquals(true, target.getBoolean("flag"))
+    }
+
+    @Test
+    fun `mergeGlobalProperties with null source keeps target unchanged`() {
+        val target = JSONObject().put("env", "prod")
+
+        PayloadFactory.mergeGlobalProperties(target, null)
+
+        assertEquals("prod", target.getString("env"))
+    }
+
+    @Test
+    fun `mergeGlobalProperties converts nested structures like mergeInto`() {
+        val target = JSONObject()
+
+        PayloadFactory.mergeGlobalProperties(
+            target,
+            mapOf("nested" to mapOf("a" to 1), "list" to listOf(1, "two")),
+        )
+
+        assertEquals(1, target.getJSONObject("nested").getInt("a"))
+        assertEquals("two", target.getJSONArray("list").getString(1))
+    }
 }

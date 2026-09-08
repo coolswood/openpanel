@@ -104,6 +104,18 @@ void main() {
     });
   });
 
+  test('setGlobalProperties passes null values through to native', () async {
+    // A null must reach the native side untouched: it means "remove the
+    // property" there (PostHog unregister semantics).
+    await platform
+        .setGlobalProperties(<String, Object?>{'subscription_id': null});
+
+    expect(calls.single.method, 'setGlobalProperties');
+    expect(calls.single.arguments, <String, Object?>{
+      'properties': <String, Object?>{'subscription_id': null},
+    });
+  });
+
   test('a missing native implementation never throws', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);

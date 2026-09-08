@@ -1,3 +1,15 @@
+## 0.1.1
+
+* `setGlobalProperties`: a `null` value now removes the property on both
+  platforms (PostHog `register`/`unregister` semantics). Previously a Dart
+  `null` arrived on iOS as `NSNull`, which is not a property-list value and
+  crashed the app with `NSInvalidArgumentException` when persisted to
+  `UserDefaults`.
+* iOS: global properties are persisted as JSON data instead of a raw
+  dictionary, so any other non-property-list value (e.g. a nested `null`)
+  can no longer crash the app either. Old plist-format storage is still
+  read.
+
 ## 0.1.0
 
 * Initial release with native Android (Kotlin) and iOS (Swift) clients.

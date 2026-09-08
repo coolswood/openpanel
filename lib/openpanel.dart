@@ -123,6 +123,8 @@ class Openpanel {
   /// [track] event.
   ///
   /// Global properties persist across app restarts until [clear] is called.
+  /// A `null` value removes the property — the counterpart of PostHog's
+  /// `register`/`unregister` pair.
   Future<void> setGlobalProperties(Map<String, Object?> properties) =>
       _whenReady(
           () => OpenpanelPlatform.instance.setGlobalProperties(properties));

@@ -63,7 +63,7 @@ abstract class OpenpanelPlatform extends PlatformInterface {
   }
 
   /// Merges [properties] into the properties attached to every future
-  /// `track` event.
+  /// `track` event. A null value removes the property.
   Future<void> setGlobalProperties(Map<String, Object?> properties) {
     throw UnimplementedError('setGlobalProperties() has not been implemented.');
   }
