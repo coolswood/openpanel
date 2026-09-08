@@ -66,6 +66,19 @@ internal object PayloadFactory {
         }
     }
 
+    /**
+     * Merges persisted [source] global properties into [target]. A null value
+     * removes the key (PostHog register/unregister semantics) instead of
+     * storing a JSON null: iOS storage cannot persist nulls, so removal keeps
+     * both platforms consistent.
+     */
+    fun mergeGlobalProperties(target: JSONObject, source: Map<String, Any?>?) {
+        if (source == null) return
+        for ((key, value) in source) {
+            if (value == null) target.remove(key) else target.put(key, toJson(value))
+        }
+    }
+
     /** Merges entries of a persisted [source] into [target]. */
     fun mergeInto(target: JSONObject, source: JSONObject?) {
         if (source == null) return

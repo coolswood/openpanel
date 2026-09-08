@@ -134,7 +134,17 @@ final class OpenpanelSdk {
   func setGlobalProperties(_ properties: [String: Any]) {
     queue.async { [weak self] in
       guard let self, self.initialized, !self.disabled else { return }
-      properties.forEach { self.globalProperties[$0.key] = $0.value }
+      // A Dart null arrives as NSNull over the method channel and means
+      // "remove the property" (PostHog register/unregister semantics). It
+      // must never reach storage: NSNull is not a property-list value and
+      // makes UserDefaults throw NSInvalidArgumentException.
+      properties.forEach { key, value in
+        if value is NSNull {
+          self.globalProperties.removeValue(forKey: key)
+        } else {
+          self.globalProperties[key] = value
+        }
+      }
       self.eventQueue.storeGlobalProperties(self.globalProperties)
     }
   }

@@ -120,7 +120,7 @@ internal class OpenpanelSdk(private val context: Context) {
     fun setGlobalProperties(properties: Map<String, Any?>?) {
         executor.execute {
             if (!initialized || disabled) return@execute
-            PayloadFactory.mergeInto(globalProperties, properties)
+            PayloadFactory.mergeGlobalProperties(globalProperties, properties)
             queue.storeGlobalProperties(globalProperties)
         }
     }

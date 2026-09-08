@@ -1,6 +1,6 @@
 name: openpanel
 description: OpenPanel analytics for Flutter with native Android and iOS clients, persistent offline event queue and batching.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/coolswood/openpanel
 topics:
   - analytics
